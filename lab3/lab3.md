@@ -4,10 +4,10 @@
 
 ---
 
-### Роботу виконали
+### Роботу виконав
 
-Студенти групи ІО-46
-Меджитова С.М., Орлик Д.В.
+Студент групи ІО-46
+Богославець Є.В.
 
 ### Роботу перевірив
 
@@ -38,21 +38,23 @@
 Було виконано запити для отримання даних з таблиць бази даних.
 
 ```sql
--- SELECT
--- 1. Перегляд робітників, які працюють судмедекспертами
-SELECT first_name || ' ' || last_name AS full_name, role
-FROM staff
-WHERE role = 'Судмедексперт';
+--Вибір тільки назви книг та автори
+SELECT title, author FROM Book;
 ```
-![SELECT1](./images/select1.png)
+<img width="513" height="341" alt="image" src="https://github.com/user-attachments/assets/2bc2f0fe-4261-485c-83ed-a1bb2ff3e61d" />
 
 ```sql
--- 2. Перегляд часу проведення розтину
-SELECT deceased_id, start_datetime, end_datetime
-FROM autopsy
-WHERE end_datetime > start_datetime;
+-- Фільтрація книг, виданих після 1950 року
+SELECT * FROM Book WHERE pub_year > 1950;
 ```
-![SELECT2](./images/select2.png)
+<img width="1069" height="198" alt="image" src="https://github.com/user-attachments/assets/4ef89f6c-033c-49fd-b5fd-7ba9ba6ce088" />
+
+```sql
+--Пошук читача за номером телефону
+SELECT first_name, last_name FROM Reader WHERE phone = '+380991112233';
+```
+<img width="830" height="199" alt="image" src="https://github.com/user-attachments/assets/15961613-b8c9-42f4-9657-d02d4b5b4a6e" />
+
 
 ### 2. Додавання даних (INSERT)
 
@@ -60,39 +62,43 @@ WHERE end_datetime > start_datetime;
 
 ```sql
 -- INSERT
--- 1. Додаємо жінку у вільну камеру
-INSERT INTO deceased (chamber_id, first_name, last_name, id_passport_details, date_of_birth,
-date_of_death, arrival_datetime, gender, case_type)
-VALUES (13, 'Вікторія', 'Панченко', 'KC0056719', '1990-07-06', '2022-01-15', '2022-01-20 18:21:36', 'Жінка', 'Вбивство');
+-- Додавання нової книги
+INSERT INTO Book (title, author, category, pub_year) 
+VALUES ('Захар Беркут', 'Іван Франко', 'Історична повість', 1883);
 ```
-![INSERT1](./images/insert1.png)
+<img width="731" height="77" alt="image" src="https://github.com/user-attachments/assets/e64010a1-1776-4567-b691-a5ee82b895d8" />
+<img width="1064" height="243" alt="image" src="https://github.com/user-attachments/assets/ed069788-fc9a-4cee-8417-ce1c844a5247" />
+
 
 ```sql
-INSERT INTO relatives (deceased_id, first_name, last_name, id_passport_details, contact_phone)
-VALUES (13, 'Олена', 'Панченко', 'CA9814886', '380522626488');
+INSERT INTO Exemplar (book_id, status, location) 
+VALUES (6, 'доступна', 'Секція Г3');
 ```
-![INSERT2](./images/insert2.png)
+<img width="744" height="183" alt="image" src="https://github.com/user-attachments/assets/39d2e81d-bd65-42a1-8d99-ab0f12979561" />
+
+<img width="645" height="284" alt="image" src="https://github.com/user-attachments/assets/2c88ca6c-258c-46c6-b433-6e4691333450" />
+
 
 ### 3. Оновлення даних (UPDATE)
 
 Було виконано оновлення існуючих записів у таблицях бази даних за допомогою оператора UPDATE із використанням умов WHERE.
 
 ```sql
--- UPDATE
--- 1. Оновлення причини смерті для померлого
-UPDATE deceased
-SET case_type = 'Природна смерть'
-WHERE first_name = 'Саске' AND last_name = 'Пономаренко';
-```
-![UPDATE1](./images/update1.png)
+-- Оновлюємо номер телефону читача (Артема)
+UPDATE Reader 
+SET phone = '+380445556677' 
+WHERE last_name = 'Хімко';
 
-```sql
--- 2. Оновлення електронної пошти робітника
-UPDATE staff
-SET mail = 'vikt.poc4@gmail.com'
-WHERE mail = 'viktor.pociluyko1980@gmail.com';
+-- Змінюємо статус примірника, коли книгу повернули
+UPDATE Exemplar 
+SET status = 'доступна' 
+WHERE inv_number = 2;
 ```
-![UPDATE2](./images/update2.png)
+<img width="585" height="234" alt="image" src="https://github.com/user-attachments/assets/81983339-f37a-4eba-8de1-39687fe59af2" />
+<img width="640" height="243" alt="image" src="https://github.com/user-attachments/assets/d42a952c-860c-4b2f-be29-275f1d2b390e" />
+<img width="1004" height="177" alt="image" src="https://github.com/user-attachments/assets/bbbb2520-5573-474e-9ef1-9fbdb36432d7" />
+
+
 
 
 ### 4. Видалення даних (DELETE)
@@ -100,22 +106,13 @@ WHERE mail = 'viktor.pociluyko1980@gmail.com';
 Було виконано видалення записів із таблиць бази даних за допомогою оператора DELETE із використанням умов WHERE.
 
 ```sql
--- DELETE
--- 1. Видалення родича (наприклад, внесли помилково або людина відмовилась бути контактною особою)
-DELETE FROM relatives 
-WHERE contact_phone = '380939998877'; 
+
+-- Видаляємо запис про видачу, якщо вона була закрита
+DELETE FROM Loan 
+WHERE loan_id = 1;
 ```
-![DELETE1](./images/delete1.png)
-
-```sql
--- 2. Видалення померлого, якому гарантовано не проводили розтин
-DELETE FROM deceased 
-WHERE first_name = 'Ліна' AND last_name = 'Костенко';
-```
-
-![DELETE2](./images/delete2.png)
-
----
+<img width="338" height="56" alt="image" src="https://github.com/user-attachments/assets/0b1fe444-52f2-4dbd-8a63-a1d8d1203b7d" />
+<img width="706" height="119" alt="image" src="https://github.com/user-attachments/assets/0988f043-f16e-4d8f-b05b-762581f9dece" />
 
 ## Результати
 
