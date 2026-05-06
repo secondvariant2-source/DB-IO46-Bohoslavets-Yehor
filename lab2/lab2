@@ -23,41 +23,41 @@
 
 У даній роботі реалізовано базу даних для автоматизації бібліотеки, яка дозволяє зберігати інформацію про:
 
-* Книжковий фонд (таблиця Book)[cite: 1]
-* Фізичні примірники книг (таблиця Exemplar)[cite: 1]
-* Зареєстрованих читачів (таблиця Reader)[cite: 1]
-* Співробітників бібліотеки (таблиця Staff)[cite: 1]
-* Журнал видачі та повернення книг (таблиця Loan)[cite: 1]
+* Книжковий фонд (таблиця Book)
+* Фізичні примірники книг (таблиця Exemplar)
+* Зареєстрованих читачів (таблиця Reader)
+* Співробітників бібліотеки (таблиця Staff)
+* Журнал видачі та повернення книг (таблиця Loan)
 
 ---
 
 ## Реляційна схема бази даних
 
-* Book(book_id, title, author, category, publisher, pub_year)[cite: 1]
-* Exemplar(inv_number, book_id, status, location)[cite: 1]
-* Reader(reader_id, first_name, last_name, phone, address)[cite: 1]
-* Staff(staff_id, full_name, position)[cite: 1]
-* Loan(loan_id, inv_number, reader_id, staff_id, issue_date, return_date)[cite: 1]
+* Book(book_id, title, author, category, publisher, pub_year)
+* Exemplar(inv_number, book_id, status, location)
+* Reader(reader_id, first_name, last_name, phone, address)
+* Staff(staff_id, full_name, position)
+* Loan(loan_id, inv_number, reader_id, staff_id, issue_date, return_date)
 
 ---
 
 ## Опис таблиць
 
 ### 1. book
-Містить загальну інформацію про видання[cite: 1].
+Містить загальну інформацію про видання.
 **Поля:**
-* book_id — первинний ключ[cite: 1]
-* title — назва[cite: 1]
-* author — автор[cite: 1]
-* category — жанр/категорія[cite: 1]
-* pub_year — рік видання[cite: 1]
+* book_id — первинний ключ
+* title — назва
+* author — автор
+* category — жанр/категорія
+* pub_year — рік видання
 
 ### 2. exemplar
-Інформація про конкретні копії книг[cite: 1].
+Інформація про конкретні копії книг.
 **Поля:**
-* inv_number — інвентарний номер (PK)[cite: 1]
-* book_id — посилання на книгу (FK)[cite: 1]
-* status — стан (available, borrowed, damaged, lost)[cite: 1]
+* inv_number — інвентарний номер (PK)
+* book_id — посилання на книгу (FK)
+* status — стан (available, borrowed, damaged, lost)
 * location — місце зберігання на стелажі[cite: 1]
 
 ### 3. reader
@@ -86,7 +86,8 @@ CREATE TABLE IF NOT EXISTS Book (
 CREATE TABLE IF NOT EXISTS Exemplar (
     inv_number SERIAL PRIMARY KEY,
     book_id INTEGER NOT NULL REFERENCES Book(book_id) ON DELETE CASCADE,
-    status VARCHAR(50) DEFAULT 'available' CHECK (status IN ('available', 'borrowed', 'damaged', 'lost')),
+    status VARCHAR(50) DEFAULT 'доступна' 
+        CHECK (status IN ('доступна', 'видана', 'пошкоджена', 'втрачена')),
     location VARCHAR(100) NOT NULL
 );
 
@@ -117,17 +118,35 @@ TRUNCATE Book, Reader, Staff, Exemplar, Loan RESTART IDENTITY CASCADE;
 
 INSERT INTO Book (title, author, category, pub_year) VALUES
 ('Тіні забутих предків', 'Михайло Коцюбинський', 'Повість', 1911),
+('Intermezzo', 'Михайло Коцюбинський', 'Новела', 1908),
 ('Кайдашева сім''я', 'Іван Нечуй-Левицький', 'Повість', 1878),
-('Тигролови', 'Іван Багряний', 'Пригодницький роман', 1944);
+('Тигролови', 'Іван Багряний', 'Пригодницький роман', 1944),
+('Маруся Чурай', 'Ліна Костенко', 'Історичний роман у віршах', 1979);
 
 INSERT INTO Reader (first_name, last_name, phone, address) VALUES
-('Артем', 'Хімко', '+380991112233', 'м. Київ, вул. Політехнічна, 16');
+('Артем', 'Хімко', '+380991112233', 'м. Київ, вул. Політехнічна, 16'),
+('Олександр', 'Коваленко', '+380954445566', 'м. Київ, пр-т Перемоги, 45'),
+('Марія', 'Петренко', '+380937778899', 'м. Київ, вул. Борщагівська, 126'),
+('Дмитро', 'Шевченко', '+380670001122', 'м. Бровари, вул. Незалежності, 10');
 
 INSERT INTO Staff (full_name, position) VALUES
-('Олена Бондаренко', 'Старший бібліотекар');
+('Олена Бондаренко', 'Старший бібліотекар'),
+('Ігор Ткаченко', 'Адміністратор бази'),
+('Анна Сидоренко', 'Молодший бібліотекар');
 
 INSERT INTO Exemplar (book_id, status, location) VALUES
-(1, 'available', 'Секція А1'), (2, 'borrowed', 'Секція А1');
+(1, 'доступна', 'Секція А1'),
+(1, 'видана', 'Секція А1'),
+(2, 'доступна', 'Секція Б2'),
+(3, 'доступна', 'Секція Б2'),
+(4, 'доступна', 'Секція В1'),
+(5, 'пошкоджена', 'Відділ реставрації');
 
+INSERT INTO Loan (reader_id, inv_number, staff_id, issue_date, return_date) VALUES
+(1, 2, 1, '2026-05-01', '2026-05-15'),
+(2, 4, 3, '2026-05-04', NULL), 
+(3, 1, 1, '2026-04-20', '2026-05-04');
+
+SELECT * FROM Book;
 INSERT INTO Loan (reader_id, inv_number, staff_id, issue_date) VALUES
 (1, 1, 1, '2026-05-06');
